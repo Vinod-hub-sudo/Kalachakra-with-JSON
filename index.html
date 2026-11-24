@@ -37,7 +37,7 @@
 <body class="min-h-screen antialiased">
 
   <!-- Top Native App Bar -->
-<header class="sticky top-0 z-30 glass border-b border-white/10 px-2 py-2 flex items-center justify-between gap-1.5 overflow-x-hidden">
+  <header class="sticky top-0 z-30 glass border-b border-white/10 px-2 py-2 flex items-center justify-between gap-1.5 overflow-x-hidden">
     <div class="flex items-center gap-1.5 shrink-0">
       <div class="w-7 h-7 rounded-lg bg-gradient-to-br from-amber-400 to-orange-600 flex items-center justify-center text-slate-950 font-telugu font-bold text-base shrink-0">
         ఓం
@@ -56,7 +56,7 @@
         <option value="hi">हिन्दी</option>
       </select>
       <button id="installBtn" type="button" class="hidden px-2 py-1 rounded-lg bg-amber-500 text-slate-950 text-[10px] font-bold">Install</button>
-      <input type="date" id="datePicker" class="hidden bg-slate-900 border border-white/15 rounded-lg px-1.5 py-1 text-[10px] text-amber-200 font-mono w-[96px] sm:w-auto" />
+      <input type="date" id="datePicker" class="bg-slate-900 border border-white/15 rounded-lg px-1.5 py-1 text-[10px] text-amber-200 font-mono w-[96px] sm:w-auto" />
     </div>
   </header>
 
@@ -311,6 +311,29 @@
           </optgroup>
         </select>
       </div>
+            <!-- AT-A-GLANCE PANCHANGAM, RAHU KALAM & YATRA STRIP -->
+      <div id="clockGlanceStrip" class="glass rounded-2xl p-3 space-y-2 border border-amber-400/25">
+        <div class="flex items-center justify-between gap-2">
+          <span id="glanceHdrTitle" class="text-[10px] uppercase tracking-wider text-amber-300 font-bold">⚡ TODAY AT A GLANCE • PANCHANGAM & YATRA</span>
+          <button id="reminderBellBtn" type="button" onclick="togglePanchTattvaReminders()" class="text-[10px] px-2 py-0.5 rounded-full bg-white/10 text-amber-200 border border-amber-400/30 font-semibold">🔔 Reminders: Off</button>
+        </div>
+        <div class="grid grid-cols-3 gap-1.5 text-[11px]">
+          <div class="p-2 rounded-xl bg-white/5">
+            <div id="glanceTithiLbl" class="text-[9px] text-slate-400">Tithi & Nakshatra</div>
+            <div id="glanceTithiVal" class="font-bold text-white text-[10px] mt-0.5 truncate">--</div>
+          </div>
+          <div class="p-2 rounded-xl bg-white/5">
+            <div id="glanceRahuLbl" class="text-[9px] text-rose-300">Rahu Kalam</div>
+            <div id="glanceRahuVal" class="font-mono font-bold text-rose-200 text-[10px] mt-0.5 truncate">--</div>
+          </div>
+          <div onclick="switchTab('temples')" class="p-2 rounded-xl bg-white/5 cursor-pointer">
+            <div id="glanceYatraLbl" class="text-[9px] text-emerald-300">My Yatra</div>
+            <div id="glanceYatraVal" class="font-bold text-emerald-200 text-[10px] mt-0.5 truncate">0 Stops</div>
+          </div>
+        </div>
+        <div id="upcomingAlertsBanner" class="text-[10px] text-amber-200 bg-amber-500/10 border border-amber-400/20 rounded-xl px-2.5 py-1.5"></div>
+      </div>
+
       <div id="cityList" class="grid grid-cols-2 gap-2.5"></div>
       <div class="glass rounded-2xl p-3.5 space-y-2">
         <div class="flex items-center justify-between gap-2">
@@ -333,6 +356,11 @@
           <div id="moonPhaseIcon" class="text-3xl">🌔</div>
         </div>
         <div class="grid grid-cols-1 gap-2 mt-3" id="panchaAngasGrid"></div>
+        <div class="mt-3 pt-2.5 border-t border-white/10 flex items-center justify-between gap-2">
+          <span id="shareCardHint" class="text-[10px] text-slate-400">Share daily Panchangam & Rahu Kalam as image</span>
+          <button id="sharePanchCardBtn" type="button" onclick="sharePanchangamCardImage()" class="px-3 py-1.5 rounded-xl bg-emerald-500 text-slate-950 font-bold text-[11px] shrink-0">📤 Share Panchangam Card</button>
+        </div>
+
       </div>
 
       <div class="glass rounded-2xl p-4 space-y-2.5">
