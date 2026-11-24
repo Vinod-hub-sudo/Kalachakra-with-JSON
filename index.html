@@ -38,16 +38,16 @@
 
   <!-- Top Native App Bar -->
   <header class="sticky top-0 z-30 glass border-b border-white/10 px-3 py-2.5 flex items-center justify-between gap-2">
-    <div class="flex items-center gap-2 min-w-0">
-      <div class="w-9 h-9 rounded-xl bg-gradient-to-br from-amber-400 to-orange-600 flex items-center justify-center text-slate-950 font-telugu font-bold text-xl shrink-0">
+    <div class="flex items-center gap-1.5 min-w-0">
+      <div class="w-8 h-8 rounded-xl bg-gradient-to-br from-amber-400 to-orange-600 flex items-center justify-center text-slate-950 font-telugu font-bold text-lg shrink-0">
         ఓం
       </div>
       <div class="min-w-0">
-        <h1 class="text-sm font-bold text-white truncate">PanchTattva</h1>
-        <p id="appSubtitle" class="text-[10px] text-slate-400 truncate">World Clock • Panchangam • Jyothishyam • Sacred Temples</p>
+        <h1 class="text-xs font-bold text-white whitespace-nowrap">PanchTattva</h1>
+        <p id="appSubtitle" class="hidden sm:block text-[10px] text-slate-400 truncate">World Clock • Panchangam • Jyothishyam • Sacred Temples</p>
       </div>
     </div>
-    <div class="flex items-center gap-1.5 shrink-0">
+    <div class="flex items-center gap-1 shrink-0">
       <button id="themeToggleBtn" type="button" onclick="toggleAppTheme()" aria-label="Toggle Light or Dark Theme" title="Light / Dark Theme" class="px-2 py-1 rounded-lg bg-slate-900 border border-white/15 text-xs text-amber-200">☀️</button>
       <button id="fontScaleBtn" type="button" onclick="toggleTeluguFontScale()" aria-label="Adjust Telugu Font Size" title="Telugu Font Size" class="px-2 py-1 rounded-lg bg-slate-900 border border-white/15 text-xs text-amber-200 font-telugu font-bold">అ+</button>
       <select id="langSwitcher" aria-label="Select Language" onchange="setAppLanguage(this.value)" class="bg-slate-900 border border-amber-400/40 rounded-lg px-2 py-1 text-xs text-amber-300 font-bold">
