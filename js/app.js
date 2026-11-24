@@ -346,15 +346,20 @@ const CORRIDOR_TRAINS = {"TPTY": [{"no": "20701", "name": "Secunderabad–Tirupa
         if (cont) cont.innerHTML = '<div class="glass rounded-2xl p-5 text-center text-xs text-amber-200">🛕 Loading Sacred Temples Directory...</div>';
         ensureTemplesLoaded().then(() => renderTemples());
       }
-      if (!VALID_TABS.includes(tabId)) tabId = 'clock';
+if (!VALID_TABS.includes(tabId)) tabId = 'clock';
       try { localStorage.setItem('panchtattva_active_tab', tabId); } catch (e) {}
       try { history.replaceState(null, '', '#' + tabId); } catch (e) {}
       VALID_TABS.forEach(t => {
         const el = document.getElementById('tab-' + t);
         if (el) el.classList.toggle('hidden', t !== tabId);
       });
+      const dpEl = document.getElementById('datePicker');
+      if (dpEl) {
+        dpEl.classList.toggle('hidden', !['panchangam', 'jyothishyam', 'festivals'].includes(tabId));
+      }
       document.querySelectorAll('.nav-btn').forEach(btn => {
         const active = btn.dataset.tab === tabId;
+        btn.setAttribute('aria-selected', String(active));
         btn.classList.toggle('text-amber-400', active);
         btn.classList.toggle('text-slate-400', !active);
       });
