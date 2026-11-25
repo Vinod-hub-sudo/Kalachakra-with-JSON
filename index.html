@@ -78,31 +78,110 @@
             </div>
             <p id="heroCitySub" class="text-xs text-slate-400 mt-1 truncate">IST • Home • 17.49°N, 78.50°E</p>
             <div class="flex items-center gap-1.5 mt-2 flex-wrap">
-              <select id="homeIndiaCitySelect" onchange="selectHomeIndiaCity(this.value)" class="bg-slate-900 border border-emerald-400/35 rounded-lg px-2 py-1 text-[11px] text-emerald-200 font-semibold max-w-[165px]">
+                            <select id="homeIndiaCitySelect" onchange="selectHomeIndiaCity(this.value)" class="bg-slate-900 border border-emerald-400/35 rounded-lg px-2 py-1 text-[11px] text-emerald-200 font-semibold max-w-[175px]">
                 <option value="">🇮🇳 Select Indian City...</option>
-                <option value="Secunderabad|Asia/Kolkata|17.4948|78.5011">Secunderabad (TS)</option>
-                <option value="Hyderabad|Asia/Kolkata|17.3850|78.4867">Hyderabad (TS)</option>
-                <option value="Vijayawada|Asia/Kolkata|16.5062|80.6480">Vijayawada (AP)</option>
-                <option value="Visakhapatnam|Asia/Kolkata|17.6868|83.2185">Visakhapatnam (AP)</option>
-                <option value="Tirupati|Asia/Kolkata|13.6288|79.4192">Tirupati (AP)</option>
-                <option value="Warangal|Asia/Kolkata|17.9689|79.5941">Warangal (TS)</option>
-                <option value="Karimnagar|Asia/Kolkata|18.4386|79.1288">Karimnagar (TS)</option>
-                <option value="Nizamabad|Asia/Kolkata|18.6725|78.0941">Nizamabad (TS)</option>
-                <option value="Kurnool|Asia/Kolkata|15.8281|78.0373">Kurnool (AP)</option>
-                <option value="Guntur|Asia/Kolkata|16.3067|80.4365">Guntur (AP)</option>
-                <option value="Rajahmundry|Asia/Kolkata|17.0005|81.8040">Rajahmundry (AP)</option>
-                <option value="Nellore|Asia/Kolkata|14.4426|79.9865">Nellore (AP)</option>
-                <option value="Bengaluru|Asia/Kolkata|12.9716|77.5946">Bengaluru (KA)</option>
-                <option value="Chennai|Asia/Kolkata|13.0827|80.2707">Chennai (TN)</option>
-                <option value="Mumbai|Asia/Kolkata|19.0760|72.8777">Mumbai (MH)</option>
-                <option value="Pune|Asia/Kolkata|18.5204|73.8567">Pune (MH)</option>
-                <option value="New Delhi|Asia/Kolkata|28.6139|77.2090">New Delhi (DL)</option>
-                <option value="Kolkata|Asia/Kolkata|22.5726|88.3639">Kolkata (WB)</option>
-                <option value="Bhubaneswar|Asia/Kolkata|20.2961|85.8245">Bhubaneswar (OD)</option>
-                <option value="Varanasi|Asia/Kolkata|25.3176|82.9739">Varanasi (UP)</option>
-                <option value="Ahmedabad|Asia/Kolkata|23.0225|72.5714">Ahmedabad (GJ)</option>
-                <option value="Jaipur|Asia/Kolkata|26.9124|75.7873">Jaipur (RJ)</option>
-                <option value="Kochi|Asia/Kolkata|9.9312|76.2673">Kochi (KL)</option>
+                <optgroup label="Telangana (TS)">
+                  <option value="Secunderabad|Asia/Kolkata|17.4948|78.5011">Secunderabad</option>
+                  <option value="Hyderabad|Asia/Kolkata|17.3850|78.4867">Hyderabad</option>
+                  <option value="Warangal|Asia/Kolkata|17.9689|79.5941">Warangal</option>
+                  <option value="Karimnagar|Asia/Kolkata|18.4386|79.1288">Karimnagar</option>
+                  <option value="Nizamabad|Asia/Kolkata|18.6725|78.0941">Nizamabad</option>
+                  <option value="Khammam|Asia/Kolkata|17.2473|80.1514">Khammam</option>
+                </optgroup>
+                <optgroup label="Andhra Pradesh (AP)">
+                  <option value="Vijayawada|Asia/Kolkata|16.5062|80.6480">Vijayawada</option>
+                  <option value="Visakhapatnam|Asia/Kolkata|17.6868|83.2185">Visakhapatnam</option>
+                  <option value="Tirupati|Asia/Kolkata|13.6288|79.4192">Tirupati</option>
+                  <option value="Guntur|Asia/Kolkata|16.3067|80.4365">Guntur</option>
+                  <option value="Rajahmundry|Asia/Kolkata|17.0005|81.8040">Rajahmundry</option>
+                  <option value="Kurnool|Asia/Kolkata|15.8281|78.0373">Kurnool</option>
+                  <option value="Nellore|Asia/Kolkata|14.4426|79.9865">Nellore</option>
+                </optgroup>
+                <optgroup label="Karnataka (KA)">
+                  <option value="Bengaluru|Asia/Kolkata|12.9716|77.5946">Bengaluru</option>
+                  <option value="Mysuru|Asia/Kolkata|12.2958|76.6394">Mysuru</option>
+                  <option value="Mangaluru|Asia/Kolkata|12.9141|74.8560">Mangaluru</option>
+                  <option value="Hubballi|Asia/Kolkata|15.3647|75.1240">Hubballi</option>
+                  <option value="Udupi|Asia/Kolkata|13.3409|74.7421">Udupi</option>
+                </optgroup>
+                <optgroup label="Tamil Nadu (TN)">
+                  <option value="Chennai|Asia/Kolkata|13.0827|80.2707">Chennai</option>
+                  <option value="Madurai|Asia/Kolkata|9.9252|78.1198">Madurai</option>
+                  <option value="Coimbatore|Asia/Kolkata|11.0168|76.9558">Coimbatore</option>
+                  <option value="Tiruchirappalli|Asia/Kolkata|10.7905|78.7047">Tiruchirappalli</option>
+                  <option value="Thanjavur|Asia/Kolkata|10.7870|79.1378">Thanjavur</option>
+                </optgroup>
+                <optgroup label="Kerala (KL)">
+                  <option value="Kochi|Asia/Kolkata|9.9312|76.2673">Kochi</option>
+                  <option value="Thiruvananthapuram|Asia/Kolkata|8.5241|76.9366">Thiruvananthapuram</option>
+                  <option value="Thrissur|Asia/Kolkata|10.5276|76.2144">Thrissur</option>
+                  <option value="Kozhikode|Asia/Kolkata|11.2588|75.7804">Kozhikode</option>
+                  <option value="Kottayam|Asia/Kolkata|9.5916|76.5222">Kottayam</option>
+                </optgroup>
+                <optgroup label="Maharashtra (MH)">
+                  <option value="Mumbai|Asia/Kolkata|19.0760|72.8777">Mumbai</option>
+                  <option value="Pune|Asia/Kolkata|18.5204|73.8567">Pune</option>
+                  <option value="Nagpur|Asia/Kolkata|21.1458|79.0882">Nagpur</option>
+                  <option value="Nashik|Asia/Kolkata|19.9975|73.7898">Nashik</option>
+                  <option value="Shirdi|Asia/Kolkata|19.7645|74.4762">Shirdi</option>
+                </optgroup>
+                <optgroup label="Gujarat (GJ)">
+                  <option value="Ahmedabad|Asia/Kolkata|23.0225|72.5714">Ahmedabad</option>
+                  <option value="Surat|Asia/Kolkata|21.1702|72.8311">Surat</option>
+                  <option value="Vadodara|Asia/Kolkata|22.3072|73.1812">Vadodara</option>
+                  <option value="Rajkot|Asia/Kolkata|22.3039|70.8022">Rajkot</option>
+                  <option value="Dwarka|Asia/Kolkata|22.2442|68.9685">Dwarka</option>
+                </optgroup>
+                <optgroup label="Rajasthan (RJ)">
+                  <option value="Jaipur|Asia/Kolkata|26.9124|75.7873">Jaipur</option>
+                  <option value="Udaipur|Asia/Kolkata|24.5854|73.7125">Udaipur</option>
+                  <option value="Jodhpur|Asia/Kolkata|26.2389|73.0243">Jodhpur</option>
+                  <option value="Ajmer|Asia/Kolkata|26.4499|74.6399">Ajmer</option>
+                  <option value="Bikaner|Asia/Kolkata|28.0229|73.3119">Bikaner</option>
+                </optgroup>
+                <optgroup label="Uttar Pradesh & Delhi (UP/DL)">
+                  <option value="New Delhi|Asia/Kolkata|28.6139|77.2090">New Delhi</option>
+                  <option value="Varanasi|Asia/Kolkata|25.3176|82.9739">Varanasi</option>
+                  <option value="Ayodhya|Asia/Kolkata|26.7922|82.1998">Ayodhya</option>
+                  <option value="Prayagraj|Asia/Kolkata|25.4358|81.8463">Prayagraj</option>
+                  <option value="Mathura|Asia/Kolkata|27.4924|77.6737">Mathura</option>
+                  <option value="Lucknow|Asia/Kolkata|26.8467|80.9462">Lucknow</option>
+                </optgroup>
+                <optgroup label="Uttarakhand & Himachal (UK/HP)">
+                  <option value="Haridwar|Asia/Kolkata|29.9457|78.1642">Haridwar</option>
+                  <option value="Rishikesh|Asia/Kolkata|30.0869|78.2676">Rishikesh</option>
+                  <option value="Dehradun|Asia/Kolkata|30.3165|78.0322">Dehradun</option>
+                  <option value="Badrinath|Asia/Kolkata|30.7433|79.4938">Badrinath</option>
+                  <option value="Shimla|Asia/Kolkata|31.1048|77.1734">Shimla</option>
+                </optgroup>
+                <optgroup label="Odisha & West Bengal (OD/WB)">
+                  <option value="Bhubaneswar|Asia/Kolkata|20.2961|85.8245">Bhubaneswar</option>
+                  <option value="Puri|Asia/Kolkata|19.8135|85.8312">Puri</option>
+                  <option value="Cuttack|Asia/Kolkata|20.4625|85.8830">Cuttack</option>
+                  <option value="Kolkata|Asia/Kolkata|22.5726|88.3639">Kolkata</option>
+                  <option value="Siliguri|Asia/Kolkata|26.7271|88.3953">Siliguri</option>
+                </optgroup>
+                <optgroup label="Madhya Pradesh & Chhattisgarh (MP/CG)">
+                  <option value="Ujjain|Asia/Kolkata|23.1765|75.7885">Ujjain</option>
+                  <option value="Indore|Asia/Kolkata|22.7196|75.8577">Indore</option>
+                  <option value="Bhopal|Asia/Kolkata|23.2599|77.4126">Bhopal</option>
+                  <option value="Jabalpur|Asia/Kolkata|23.1815|79.9864">Jabalpur</option>
+                  <option value="Raipur|Asia/Kolkata|21.2514|81.6296">Raipur</option>
+                </optgroup>
+                <optgroup label="Bihar, Jharkhand & Assam (BR/JH/AS)">
+                  <option value="Patna|Asia/Kolkata|25.5941|85.1376">Patna</option>
+                  <option value="Gaya|Asia/Kolkata|24.7914|85.0002">Gaya</option>
+                  <option value="Ranchi|Asia/Kolkata|23.3441|85.3096">Ranchi</option>
+                  <option value="Deoghar|Asia/Kolkata|24.4852|86.6948">Deoghar</option>
+                  <option value="Guwahati|Asia/Kolkata|26.1445|91.7362">Guwahati</option>
+                </optgroup>
+                <optgroup label="Punjab, Haryana & J&K (PB/HR/JK)">
+                  <option value="Amritsar|Asia/Kolkata|31.6340|74.8723">Amritsar</option>
+                  <option value="Chandigarh|Asia/Kolkata|30.7333|76.7794">Chandigarh</option>
+                  <option value="Kurukshetra|Asia/Kolkata|29.9695|76.8783">Kurukshetra</option>
+                  <option value="Jammu|Asia/Kolkata|32.7266|74.8570">Jammu</option>
+                  <option value="Srinagar|Asia/Kolkata|34.0837|74.7973">Srinagar</option>
+                </optgroup>
               </select>
               <button type="button" onclick="useHomeGpsLocation()" class="px-2 py-1 rounded-lg bg-sky-500/20 border border-sky-400/40 text-sky-200 text-[11px] font-bold">
                 🛰️ Use GPS
@@ -272,42 +351,72 @@
 
       <div class="flex items-center justify-between gap-2">
         <h3 id="lblGlobalTz" class="text-xs font-semibold uppercase tracking-wider text-slate-400">Global Timezones</h3>
-        <select id="addCitySelect" onchange="handleAddCity(this.value)" class="bg-slate-900 border border-amber-400/35 rounded-lg px-2.5 py-1.5 text-xs text-amber-200 font-medium max-w-[215px]">
+                <select id="addCitySelect" onchange="handleAddCity(this.value)" class="bg-slate-900 border border-amber-400/35 rounded-lg px-2.5 py-1.5 text-xs text-amber-200 font-medium max-w-[215px]">
           <option value="">+ Add World City (All Zones)</option>
           <optgroup label="🇮🇳 India (IST • UTC+05:30)">
             <option value="Secunderabad|Asia/Kolkata|17.4948|78.5011">Secunderabad (IST)</option>
             <option value="Hyderabad|Asia/Kolkata|17.3850|78.4867">Hyderabad (IST)</option>
-            <option value="Vijayawada|Asia/Kolkata|16.5062|80.6480">Vijayawada (IST)</option>
-            <option value="Visakhapatnam|Asia/Kolkata|17.6868|83.2185">Visakhapatnam (IST)</option>
-            <option value="Tirupati|Asia/Kolkata|13.6288|79.4192">Tirupati (IST)</option>
             <option value="Bengaluru|Asia/Kolkata|12.9716|77.5946">Bengaluru (IST)</option>
             <option value="Chennai|Asia/Kolkata|13.0827|80.2707">Chennai (IST)</option>
             <option value="Mumbai|Asia/Kolkata|19.0760|72.8777">Mumbai (IST)</option>
             <option value="New Delhi|Asia/Kolkata|28.6139|77.2090">New Delhi (IST)</option>
-            <option value="Varanasi|Asia/Kolkata|25.3176|82.9739">Varanasi (IST)</option>
           </optgroup>
-          <optgroup label="🌏 Asia & Middle East">
+          <optgroup label="🇦🇪 Middle East (GST/AST • UTC+3/+4)">
             <option value="Dubai|Asia/Dubai|25.2048|55.2708">Dubai (GST • UTC+4)</option>
+            <option value="Abu Dhabi|Asia/Dubai|24.4539|54.3773">Abu Dhabi (GST • UTC+4)</option>
+            <option value="Muscat|Asia/Muscat|23.5880|58.3829">Muscat (GST • UTC+4)</option>
             <option value="Riyadh|Asia/Riyadh|24.7136|46.6753">Riyadh (AST • UTC+3)</option>
             <option value="Doha|Asia/Qatar|25.2854|51.5310">Doha (AST • UTC+3)</option>
+            <option value="Kuwait City|Asia/Kuwait|29.3759|47.9774">Kuwait City (AST • UTC+3)</option>
+          </optgroup>
+          <optgroup label="🌏 East & SE Asia (SGT/JST • UTC+8/+9)">
             <option value="Singapore|Asia/Singapore|1.3521|103.8198">Singapore (SGT • UTC+8)</option>
+            <option value="Kuala Lumpur|Asia/Kuala_Lumpur|3.1390|101.6869">Kuala Lumpur (MYT • UTC+8)</option>
+            <option value="Hong Kong|Asia/Hong_Kong|22.3193|114.1694">Hong Kong (HKT • UTC+8)</option>
             <option value="Tokyo|Asia/Tokyo|35.6762|139.6503">Tokyo (JST • UTC+9)</option>
             <option value="Seoul|Asia/Seoul|37.5665|126.9780">Seoul (KST • UTC+9)</option>
           </optgroup>
-          <optgroup label="🌍 Europe & Africa">
+          <optgroup label="🇬🇧 UK & Ireland (GMT/BST • UTC+0/+1)">
             <option value="London|Europe/London|51.5074|-0.1278">London (GMT/BST)</option>
+            <option value="Manchester|Europe/London|53.4808|-2.2426">Manchester (GMT/BST)</option>
+            <option value="Birmingham|Europe/London|52.4862|-1.8904">Birmingham (GMT/BST)</option>
+            <option value="Edinburgh|Europe/London|55.9533|-3.1883">Edinburgh (GMT/BST)</option>
+            <option value="Dublin|Europe/Dublin|53.3498|-6.2603">Dublin (GMT/IST)</option>
+          </optgroup>
+          <optgroup label="🇪🇺 Central Europe (CET/CEST • UTC+1/+2)">
             <option value="Paris|Europe/Paris|48.8566|2.3522">Paris (CET/CEST)</option>
             <option value="Frankfurt|Europe/Berlin|50.1109|8.6821">Frankfurt (CET/CEST)</option>
+            <option value="Amsterdam|Europe/Amsterdam|52.3676|4.9041">Amsterdam (CET/CEST)</option>
             <option value="Zurich|Europe/Zurich|47.3769|8.5417">Zurich (CET/CEST)</option>
+            <option value="Rome|Europe/Rome|41.9028|12.4964">Rome (CET/CEST)</option>
           </optgroup>
-          <optgroup label="🌎 Americas & Australia">
+          <optgroup label="🇺🇸 US & Canada East (EST/EDT • UTC-5/-4)">
             <option value="New York|America/New_York|40.7128|-74.0060">New York (EST/EDT)</option>
+            <option value="Boston|America/New_York|42.3601|-71.0589">Boston (EST/EDT)</option>
+            <option value="Atlanta|America/New_York|33.7490|-84.3880">Atlanta (EST/EDT)</option>
+            <option value="Miami|America/New_York|25.7617|-80.1918">Miami (EST/EDT)</option>
+            <option value="Toronto|America/Toronto|43.6532|-79.3832">Toronto (EST/EDT)</option>
+          </optgroup>
+          <optgroup label="🇺🇸 US Central (CST/CDT • UTC-6/-5)">
             <option value="Chicago|America/Chicago|41.8781|-87.6298">Chicago (CST/CDT)</option>
             <option value="Dallas|America/Chicago|32.7767|-96.7970">Dallas (CST/CDT)</option>
+            <option value="Houston|America/Chicago|29.7604|-95.3698">Houston (CST/CDT)</option>
+            <option value="Austin|America/Chicago|30.2672|-97.7431">Austin (CST/CDT)</option>
+            <option value="Minneapolis|America/Chicago|44.9778|-93.2650">Minneapolis (CST/CDT)</option>
+          </optgroup>
+          <optgroup label="🇺🇸 US & Canada Pacific (PST/PDT • UTC-8/-7)">
             <option value="San Francisco|America/Los_Angeles|37.7749|-122.4194">San Francisco (PST/PDT)</option>
-            <option value="Toronto|America/Toronto|43.6532|-79.3832">Toronto (EST/EDT)</option>
+            <option value="Los Angeles|America/Los_Angeles|34.0522|-118.2437">Los Angeles (PST/PDT)</option>
+            <option value="Seattle|America/Los_Angeles|47.6062|-122.3321">Seattle (PST/PDT)</option>
+            <option value="San Jose|America/Los_Angeles|37.3382|-121.8863">San Jose (PST/PDT)</option>
+            <option value="Vancouver|America/Vancouver|49.2827|-123.1207">Vancouver (PST/PDT)</option>
+          </optgroup>
+          <optgroup label="🇦🇺 Australia & NZ (AEST/NZST • UTC+10/+12)">
             <option value="Sydney|Australia/Sydney|-33.8688|151.2093">Sydney (AEST/AEDT)</option>
             <option value="Melbourne|Australia/Melbourne|-37.8136|144.9631">Melbourne (AEST/AEDT)</option>
+            <option value="Brisbane|Australia/Brisbane|-27.4705|153.0260">Brisbane (AEST)</option>
+            <option value="Perth|Australia/Perth|-31.9505|115.8605">Perth (AWST • UTC+8)</option>
+            <option value="Auckland|Pacific/Auckland|-36.8485|174.7633">Auckland (NZST/NZDT)</option>
           </optgroup>
         </select>
       </div>
@@ -326,9 +435,9 @@
             <div id="glanceRahuLbl" class="text-[9px] text-rose-300">Rahu Kalam</div>
             <div id="glanceRahuVal" class="font-mono font-bold text-rose-200 text-[10px] mt-0.5 truncate">--</div>
           </div>
-          <div onclick="switchTab('temples')" class="p-2 rounded-xl bg-white/5 cursor-pointer">
-            <div id="glanceYatraLbl" class="text-[9px] text-emerald-300">My Yatra</div>
-            <div id="glanceYatraVal" class="font-bold text-emerald-200 text-[10px] mt-0.5 truncate">0 Stops</div>
+          <div onclick="switchTab('panchangam')" class="p-2 rounded-xl bg-white/5 cursor-pointer">
+            <div id="glanceAmruthaLbl" class="text-[9px] text-emerald-300">Amrutha Gadiyalu</div>
+            <div id="glanceAmruthaVal" class="font-mono font-bold text-emerald-200 text-[10px] mt-0.5 truncate">--</div>
           </div>
         </div>
         <div id="upcomingAlertsBanner" class="text-[10px] text-amber-200 bg-amber-500/10 border border-amber-400/20 rounded-xl px-2.5 py-1.5"></div>
@@ -579,16 +688,13 @@
           </select>
         </div>
 
-        <!-- Cascading District -> Mandal -> Division (e.g. Macha Bolarum - 133) -->
-        <div class="grid grid-cols-3 gap-1.5">
-          <select id="districtFilter" onchange="onDistrictFilterChange()" class="bg-slate-900 border border-amber-400/25 rounded-xl px-2 py-2 text-[11px] text-amber-100">
+        <!-- Cascading District -> Mandal (Stops at Mandal Level) -->
+        <div class="grid grid-cols-2 gap-2">
+          <select id="districtFilter" onchange="onDistrictFilterChange()" class="bg-slate-900 border border-amber-400/25 rounded-xl px-2.5 py-2 text-xs text-amber-100">
             <option value="ALL">🏛️ All Districts</option>
           </select>
-          <select id="mandalFilter" onchange="onMandalFilterChange()" class="bg-slate-900 border border-emerald-400/25 rounded-xl px-2 py-2 text-[11px] text-emerald-200">
+          <select id="mandalFilter" onchange="renderTemples()" class="bg-slate-900 border border-emerald-400/25 rounded-xl px-2.5 py-2 text-xs text-emerald-200">
             <option value="ALL">🌿 All Mandals</option>
-          </select>
-          <select id="divisionFilter" onchange="renderTemples()" class="bg-slate-900 border border-sky-400/25 rounded-xl px-2 py-2 text-[11px] text-sky-200">
-            <option value="ALL">🏷️ All Divisions</option>
           </select>
         </div>
 
@@ -666,7 +772,10 @@
             <h2 id="calMonthLabel" class="text-sm font-bold text-amber-300">November</h2>
             <select id="calYearJump" onchange="jumpCalendarYear(this.value)" title="Select Year (2026–2075)" class="bg-slate-900 border border-amber-400/40 rounded-lg px-2 py-0.5 text-xs font-mono font-bold text-amber-200"></select>
           </div>
-          <button id="nextMonthBtn" type="button" onclick="shiftMonth(1)" class="px-2.5 py-1 rounded-lg bg-white/10 text-xs">▶</button>
+          <div class="flex items-center gap-1">
+            <button type="button" onclick="jumpToTodayCalendar()" class="px-2 py-1 rounded-lg bg-amber-500/20 border border-amber-400/35 text-amber-200 text-[10px] font-bold">Today</button>
+            <button id="nextMonthBtn" type="button" onclick="shiftMonth(1)" class="px-2.5 py-1 rounded-lg bg-white/10 text-xs">▶</button>
+          </div>
         </div>
         <p id="calHintText" class="text-[10px] text-slate-400 text-center mb-2.5">Tap any date below to inspect its complete Panchangam, Festivals & Puranic Story</p>
         <div class="grid grid-cols-7 text-center text-[10px] text-slate-400 font-semibold mb-1.5">
@@ -686,7 +795,10 @@
       <div id="selectedDateDetailCard" class="space-y-3"></div>
 
       <div class="glass rounded-2xl p-4 space-y-2.5">
-        <h3 id="lblFestivalList" class="text-xs font-bold uppercase tracking-wider text-amber-300">Complete Pandugalu & Vratams (Full Puranic Stories)</h3>
+        <div class="flex items-center justify-between gap-2 flex-wrap">
+          <h3 id="lblFestivalList" class="text-xs font-bold uppercase tracking-wider text-amber-300">Complete Pandugalu & Vratams (Full Puranic Stories)</h3>
+        </div>
+        <input id="festivalSearchInput" type="text" oninput="renderFestivals()" placeholder="Search festival, vratam, deity or month (e.g. Ugadi, Ekadashi, Karthika)..." class="w-full bg-slate-900 border border-white/15 rounded-xl px-3 py-2 text-xs text-white" />
         <!-- 50-YEAR ACCURATE FESTIVAL EXPLORER (2026–2075) -->
         <div class="p-3 rounded-2xl bg-amber-950/25 border border-amber-400/30 space-y-2 mb-3">
           <div class="flex items-center justify-between gap-2">
