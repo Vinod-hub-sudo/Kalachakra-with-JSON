@@ -346,20 +346,15 @@ const CORRIDOR_TRAINS = {"TPTY": [{"no": "20701", "name": "Secunderabad–Tirupa
         if (cont) cont.innerHTML = '<div class="glass rounded-2xl p-5 text-center text-xs text-amber-200">🛕 Loading Sacred Temples Directory...</div>';
         ensureTemplesLoaded().then(() => renderTemples());
       }
-if (!VALID_TABS.includes(tabId)) tabId = 'clock';
+      if (!VALID_TABS.includes(tabId)) tabId = 'clock';
       try { localStorage.setItem('panchtattva_active_tab', tabId); } catch (e) {}
       try { history.replaceState(null, '', '#' + tabId); } catch (e) {}
       VALID_TABS.forEach(t => {
         const el = document.getElementById('tab-' + t);
         if (el) el.classList.toggle('hidden', t !== tabId);
       });
-      const dpEl = document.getElementById('datePicker');
-      if (dpEl) {
-        dpEl.classList.toggle('hidden', !['panchangam', 'jyothishyam', 'festivals'].includes(tabId));
-      }
       document.querySelectorAll('.nav-btn').forEach(btn => {
         const active = btn.dataset.tab === tabId;
-        btn.setAttribute('aria-selected', String(active));
         btn.classList.toggle('text-amber-400', active);
         btn.classList.toggle('text-slate-400', !active);
       });
@@ -1196,41 +1191,61 @@ if (!VALID_TABS.includes(tabId)) tabId = 'clock';
     }
 
     // Classical Telugu Muhurtha Shastra & Drik Panchangam Event Evaluator
+    function getRecommendedTimeWindows(dateObj, activeCity) {
+      const sun = calcSunTimes(dateObj, activeCity.lat, activeCity.lon, activeCity.tz);
+      const span = (sun.ss.total - sun.sr.total + 1440) % 1440;
+      const part = span / 8;
+      const noon = sun.sr.total + span / 2;
+      const dow = dateObj.getDay();
+
+      // Identify forbidden Ashta-part slots (1-indexed 1..8) for Rahu Kalam & Yamagandam
+      const rahuSlot = [8, 2, 7, 5, 6, 4, 3][dow];
+      const yamaSlot = [5, 4, 3, 2, 1, 7, 6][dow];
+      const gulikaSlot = [7, 6, 5, 4, 3, 2, 1][dow];
+
+      const goodSlots = [];
+      for (let s = 1; s <= 8; s++) {
+        if (s !== rahuSlot && s !== yamaSlot) {
+          goodSlots.push({ slot: s, start: sun.sr.total + (s - 1) * part, end: sun.sr.total + s * part });
+        }
+      }
+      const abhijitStr = `${formatMin12(noon - 24)} – ${formatMin12(noon + 24)}`;
+      const gulikaStr = `${formatMin12(sun.sr.total + (gulikaSlot - 1) * part)} – ${formatMin12(sun.sr.total + gulikaSlot * part)}`;
+      const rahuStr = `${formatMin12(sun.sr.total + (rahuSlot - 1) * part)} – ${formatMin12(sun.sr.total + rahuSlot * part)}`;
+      const primaryWindow = goodSlots[0] ? `${formatMin12(goodSlots[0].start)} – ${formatMin12(goodSlots[0].end)}` : abhijitStr;
+      const secondaryWindow = goodSlots[1] ? `${formatMin12(goodSlots[1].start)} – ${formatMin12(goodSlots[1].end)}` : abhijitStr;
+
+      return { primaryWindow, secondaryWindow, abhijitStr, gulikaStr, rahuStr };
+    }
+
     function renderTeluguRitualSuitability(dateObj, panchang) {
       const gridEl = document.getElementById('teluguRitualSuitabilityGrid');
       const badgeEl = document.getElementById('muhurthamOverallBadge');
       const noteEl = document.getElementById('muhurthamShastraNote');
       if (!gridEl || !panchang) return;
 
-      const dow = dateObj.getDay(); // 0=Sun .. 6=Sat
-      const tIdx = panchang.tithiIdx; // 0..14 Shukla, 15..29 Krishna
-      const tNum = (tIdx % 15) + 1; // 1..15
-      const isShukla = tIdx < 15;
-      const nIdx = panchang.nakIdx; // 0=Ashwini .. 26=Revati
-      const sunRashi = panchang.sunRashiIdx; // 0=Mesha .. 8=Dhanus, 11=Meena
+      const activeCity = cities[selectedCityIndex] || cities[0];
+      const win = getRecommendedTimeWindows(dateObj, activeCity);
 
-      // Rikta Tithis (4, 9, 14) & Amavasya (30) & Ashtami (8)
+      const dow = dateObj.getDay();
+      const tIdx = panchang.tithiIdx;
+      const tNum = (tIdx % 15) + 1;
+      const isShukla = tIdx < 15;
+      const nIdx = panchang.nakIdx;
+      const sunRashi = panchang.sunRashiIdx;
+
       const isRikta = (tNum === 4 || tNum === 9 || tNum === 14);
       const isAmavasya = (tIdx === 29);
       const isAshtami = (tNum === 8);
-
-      // Chaturmasya check: Ashadha Shukla Ekadashi (sunRashi 2/3) to Karthika Shukla Ekadashi
-      // Dhanurmasam (Sun in Dhanus = 8) & Meena / Shunya Masam (Sun in Meena = 11)
       const isDhanurOrShunyaMasa = (sunRashi === 8 || sunRashi === 11);
 
-      // Nakshatra groups per Telugu Muhurtha Chintamani / Brihat Samhita:
-      // Dhruva (Fixed - good for Gruhapravesham, foundation, marriage): Rohini(3), Uttara Phalguni(11), Uttarashadha(20), Uttarabhadra(25)
-      // Mridu & Maitra (Soft/Friendly - good for Marriage, Engagement, New Beginnings): Mrigashira(4), Chitra(13), Anuradha(16), Revati(26)
-      // Kshipra (Swift - good for Travel, Business start, Vehicle): Ashwini(0), Pushya(7), Hasta(12), Abhijit
-      // Chara (Movable - good for Travel, Vehicle): Punarvasu(6), Swati(14), Shravana(21), Dhanishta(22), Shatabhisha(23)
-      // Ugra / Tikshna (Fierce - avoid marriage/gruhapravesham): Bharani(1), Krittika(2), Ashlesha(8), Magha(9), Purva Phalguni(10), Jyeshtha(17), Moola(18), Purvashadha(19), Purvabhadra(24)
       const dhruvaNak = [3, 11, 20, 25].includes(nIdx);
       const mriduNak = [4, 13, 16, 26].includes(nIdx);
       const kshipraNak = [0, 7, 12].includes(nIdx);
       const charaNak = [6, 14, 21, 22, 23].includes(nIdx);
-      const avoidMajorCeremonyNak = [1, 8, 17, 18].includes(nIdx); // Bharani, Ashlesha, Jyeshtha, Moola
+      const avoidMajorCeremonyNak = [1, 8, 17, 18].includes(nIdx);
 
-      const goodWeekday = [1, 3, 4, 5].includes(dow); // Mon, Wed, Thu, Fri
+      const goodWeekday = [1, 3, 4, 5].includes(dow);
       const tithiClean = !isRikta && !isAmavasya && !isAshtami && tNum !== 1;
 
       const isTe = currentLang === 'te';
@@ -1239,22 +1254,25 @@ if (!VALID_TABS.includes(tabId)) tabId = 'clock';
       const mHdr = gridEl.closest('.glass')?.querySelector('h3');
       if (mHdr) {
         mHdr.textContent = isTe
-          ? 'ముహూర్త & శుభకార్య అనుకూలత (వివాహ • గృహప్రవేశ • ప్రయాణ)'
+          ? 'ముహూర్త & శుభకార్య అనుకూలత & సమయాలు'
           : isHi
-            ? 'मुहूर्त एवं शुभ कार्य अनुकूलता (विवाह • गृहप्रवेश • यात्रा)'
-            : 'Ritual & Event Suitability (వివాహ • గృహప్రవేశ • ప్రయాణ)';
+            ? 'मुहूर्त एवं शुभ कार्य अनुकूलता व समय'
+            : 'Ritual & Event Suitability & Time Windows';
       }
 
-      let marriageStatus = 'AVOID', marriageReason = '';
+      // 1. Vivaham
+      let marriageStatus = 'AVOID', marriageReason = '', marriageTime = '';
       if (isDhanurOrShunyaMasa) {
         marriageStatus = 'AVOID';
+        marriageTime = isTe ? 'వివాహ ముహూర్తాలు నిషిద్ధం' : isHi ? 'विवाह समय वर्जित' : 'No wedding muhurtham';
         marriageReason = isTe
           ? (sunRashi === 8 ? 'ధనుర్మాసంలో వివాహ ముహూర్తాలు నిషిద్ధం; విష్ణు ఆరాధనకు ప్రశస్తం.' : 'మీన / శూన్య మాసంలో వివాహ, ఉపనయన కార్యక్రమాలు నిషిద్ధం.')
           : isHi
             ? (sunRashi === 8 ? 'धनुर्मास में विवाह कार्य वर्जित हैं; विष्णु आराधना श्रेष्ठ है।' : 'मीन / शून्य मास में विवाह व उपनयन वर्जित हैं।')
-            : (sunRashi === 8 ? 'Dhanurmasam — Telugu tradition reserves this month for Vishnu devotion rather than weddings.' : 'Meena / Shunya Masam — Avoided for Vivaha per Telugu Panchangam.');
+            : (sunRashi === 8 ? 'Dhanurmasam — Telugu tradition avoids weddings this month.' : 'Meena / Shunya Masam — Avoided for Vivaha per Telugu Panchangam.');
       } else if (!tithiClean || avoidMajorCeremonyNak) {
         marriageStatus = 'AVOID';
+        marriageTime = isTe ? 'ప్రధాన వివాహానికి అనుకూలం కాదు' : isHi ? 'विवाह हेतु अनुकूल नहीं' : 'Not recommended for weddings';
         marriageReason = isTe
           ? `తిథి (${panchang.tithi}) లేదా నక్షత్రం (${panchang.nakshatra}) వివాహానికి అనుకూలం కాదు.`
           : isHi
@@ -1262,23 +1280,27 @@ if (!VALID_TABS.includes(tabId)) tabId = 'clock';
             : `Tithi (${panchang.tithi}) or Nakshatra (${panchang.nakshatra}) is non-Vivaha.`;
       } else if ((dhruvaNak || mriduNak || [12, 14].includes(nIdx)) && goodWeekday) {
         marriageStatus = 'AUSPICIOUS';
+        marriageTime = `${win.primaryWindow} (${isTe ? 'అభిజిత్' : 'Abhijit'}: ${win.abhijitStr})`;
         marriageReason = isTe
-          ? `శుభ తిథి (${panchang.tithi}) మరియు ${panchang.nakshatra} అనుకూలం; గురు/శుక్ర బలం, తారాబలం పరిశీలించండి.`
+          ? `శుభ తిథి (${panchang.tithi}) + ${panchang.nakshatra} అనుకూలం; పురోహితుల నిర్దేశిత లగ్నంలో, రాహుకాలం (${win.rahuStr}) వర్జించి నిర్వహించండి.`
           : isHi
-            ? `शुभ तिथि (${panchang.tithi}) व ${panchang.nakshatra} अनुकूल; गुरु/शुक्र बल व ताराबल देखें।`
-            : `Shubha Tithi (${panchang.tithi}) + ${panchang.nakshatra} on an auspicious weekday.`;
+            ? `शुभ तिथि (${panchang.tithi}) + ${panchang.nakshatra} अनुकूल; राहुकाल (${win.rahuStr}) त्यागकर पुरोहित द्वारा तय लग्न में करें।`
+            : `Shubha Tithi (${panchang.tithi}) + ${panchang.nakshatra}; confirm exact Lagna with Purohit outside Rahu Kalam (${win.rahuStr}).`;
       } else {
         marriageStatus = 'MODERATE';
+        marriageTime = `${win.primaryWindow} / ${win.abhijitStr}`;
         marriageReason = isTe
-          ? 'రాహుకాలం, దుర్ముహూర్తం వర్జించి పురోహితుల సలహాతో నిర్దిష్ట లగ్నంలో పరిశీలించవచ్చు.'
+          ? `రాహుకాలం (${win.rahuStr}), దుర్ముహూర్తం వర్జించి ఈ శుభ సమయంలో పురోహితుల సలహాతో లగ్నం నిర్ణయించవచ్చు.`
           : isHi
-            ? 'राहुकाल व दुर्मुहूर्त त्यागकर पुरोहित परामर्श से शुभ लग्न में विचारणीय।'
-            : 'Permissible in specific Lagna avoiding Rahu Kalam & Durmuhurtham.';
+            ? `राहुकाल (${win.rahuStr}) व दुर्मुहूर्त छोड़कर इस समय में पुरोहित परामर्श से लग्न देखें।`
+            : `In this window (outside Rahu Kalam ${win.rahuStr}), confirm exact Lagna with a Siddhanti.`;
       }
 
-      let engStatus = 'MODERATE', engReason = '';
+      // 2. Nischitartham
+      let engStatus = 'MODERATE', engReason = '', engTime = '';
       if (isAmavasya || isRikta || avoidMajorCeremonyNak) {
         engStatus = 'AVOID';
+        engTime = isTe ? 'నిశ్చితార్థానికి వర్జ్యం' : isHi ? 'सगाई हेतु वर्ज्य' : 'Avoid engagement';
         engReason = isTe
           ? 'రిక్తా తిథులు, అమావాస్య లేదా భరణి/ఆశ్లేష/జ్యేష్ఠ/మూల నక్షత్రాలలో నిశ్చితార్థం నిషిద్ధం.'
           : isHi
@@ -1286,23 +1308,27 @@ if (!VALID_TABS.includes(tabId)) tabId = 'clock';
             : 'Avoid engagement on Rikta Tithi, Amavasya, or Bharani/Ashlesha/Jyeshtha/Moola.';
       } else if (isShukla && tithiClean && (dhruvaNak || mriduNak || kshipraNak)) {
         engStatus = 'AUSPICIOUS';
+        engTime = `${win.primaryWindow} / ${win.abhijitStr}`;
         engReason = isTe
-          ? `శుక్ల పక్ష ${panchang.tithi} మరియు ${panchang.nakshatra} తాంబూల/నిశ్చితార్థ కార్యక్రమాలకు శుభప్రదం.`
+          ? `శుక్ల పక్ష ${panchang.tithi} + ${panchang.nakshatra} తాంబూల/నిశ్చితార్థాలకు అనుకూలం; రాహుకాలం (${win.rahuStr}) మినహాయించండి.`
           : isHi
-            ? `शुक्ल पक्ष ${panchang.tithi} व ${panchang.nakshatra} सगाई/शुभ संकल्प हेतु उत्तम।`
-            : `Shukla Paksha ${panchang.tithi} with ${panchang.nakshatra} supports family commitments.`;
+            ? `शुक्ल पक्ष ${panchang.tithi} + ${panchang.nakshatra} सगाई हेतु शुभ; राहुकाल (${win.rahuStr}) छोड़कर करें।`
+            : `Shukla Paksha ${panchang.tithi} + ${panchang.nakshatra} favors engagement; avoid Rahu Kalam (${win.rahuStr}).`;
       } else {
         engStatus = 'MODERATE';
+        engTime = `${win.abhijitStr} / ${win.secondaryWindow}`;
         engReason = isTe
-          ? 'రాహుకాలం, యమగండం మినహాయించి అభిజిత్ లేదా శుభ సమయంలో నిర్వహించవచ్చు.'
+          ? `రాహుకాలం (${win.rahuStr}) మరియు యమగండం మినహాయించి ఈ సమయంలో నిర్వహించవచ్చు.`
           : isHi
-            ? 'राहुकाल व यमगंड को छोड़कर अभिजीत या शुभ समय में संभव।'
-            : 'Acceptable during Abhijit / Subha Samayam excluding Rahu Kalam & Yamagandam.';
+            ? `राहुकाल (${win.rahuStr}) व यमगंड को छोड़कर इस समय में किया जा सकता है।`
+            : `Favorable during Abhijit/day window excluding Rahu Kalam (${win.rahuStr}) & Yamagandam.`;
       }
 
-      let gruhaStatus = 'AVOID', gruhaReason = '';
+      // 3. Gruhapravesham
+      let gruhaStatus = 'AVOID', gruhaReason = '', gruhaTime = '';
       if (isDhanurOrShunyaMasa || isAmavasya || isRikta || avoidMajorCeremonyNak) {
         gruhaStatus = 'AVOID';
+        gruhaTime = isTe ? 'గృహప్రవేశానికి నిషిద్ధం' : isHi ? 'गृहप्रवेश वर्जित' : 'Avoid housewarming';
         gruhaReason = isTe
           ? (isDhanurOrShunyaMasa ? 'ధనుర్మాస / శూన్య మాసాలలో గృహప్రవేశం, వాస్తు హోమం నిషిద్ధం.' : `${panchang.tithi} / ${panchang.nakshatra} గృహప్రవేశానికి అనుకూలం కాదు.`)
           : isHi
@@ -1310,23 +1336,27 @@ if (!VALID_TABS.includes(tabId)) tabId = 'clock';
             : (isDhanurOrShunyaMasa ? 'Dhanurmasam / Shunya Masam — Gruhapravesham is avoided.' : `Avoid housewarming on ${panchang.tithi} / ${panchang.nakshatra}.`);
       } else if (isShukla && (dhruvaNak || mriduNak || nIdx === 7 || nIdx === 12) && goodWeekday) {
         gruhaStatus = 'AUSPICIOUS';
+        gruhaTime = `${win.primaryWindow} (${isTe ? 'ఉదయ శుభ వేళ' : 'Morning Window'})`;
         gruhaReason = isTe
-          ? `${panchang.nakshatra} మరియు ${panchang.tithi} వాస్తు పూజ, పాలు పొంగించడం, గృహప్రవేశానికి శుభప్రదం.`
+          ? `${panchang.nakshatra} + ${panchang.tithi} వాస్తు పూజ, పాలు పొంగించడం, గృహప్రవేశానికి శుభప్రదం; రాహుకాలం (${win.rahuStr}) వద్దు.`
           : isHi
-            ? `${panchang.nakshatra} व ${panchang.tithi} वास्तु पूजन व गृहप्रवेश हेतु शुभ है।`
-            : `Fixed/Soft Nakshatra (${panchang.nakshatra}) on ${panchang.tithi} favors Gruhapravesham.`;
+            ? `${panchang.nakshatra} + ${panchang.tithi} वास्तु पूजन व गृहप्रवेश हेतु शुभ; राहुकाल (${win.rahuStr}) से बचें।`
+            : `${panchang.nakshatra} + ${panchang.tithi} favors Vastu Puja & Gruhapravesham; avoid Rahu Kalam (${win.rahuStr}).`;
       } else {
         gruhaStatus = 'MODERATE';
+        gruhaTime = `${win.primaryWindow}`;
         gruhaReason = isTe
-          ? 'శుభ లగ్నంలో తాత్కాలిక/అద్దె గృహ ప్రవేశానికి పరిశీలించవచ్చు; నూతన గృహానికి రోహిణి/పుష్యమి/ఉత్తర/రేవతి శ్రేష్టం.'
+          ? `శుభ లగ్నంలో తాత్కాలిక/అద్దె గృహ ప్రవేశానికి ఈ సమయంలో పరిశీలించవచ్చు; నూతన గృహానికి రోహిణి/పుష్యమి/ఉత్తర/రేవతి శ్రేష్టం.`
           : isHi
-            ? 'शुभ लग्न में अस्थायी प्रवेश संभव; नए घर के लिए रोहिणी/पुष्य/उत्तरा/रेवती श्रेष्ठ।'
-            : 'Can be considered for rented/temporary entry in Subha Lagna.';
+            ? `शुभ लग्न में अस्थायी प्रवेश इस समय विचारणीय; नए घर के लिए रोहिणी/पुष्य/उत्तरा/रेवती श्रेष्ठ।`
+            : `Consider in this window for temporary/rented entry; for new homes prefer Rohini/Pushya/Uttara/Revati.`;
       }
 
-      let newStartStatus = 'MODERATE', newStartReason = '';
+      // 4. New Beginnings
+      let newStartStatus = 'MODERATE', newStartReason = '', newStartTime = '';
       if (isAmavasya || isRikta) {
         newStartStatus = 'AVOID';
+        newStartTime = isTe ? 'కొత్త కార్యక్రమాలకు వర్జ్యం' : isHi ? 'नए कार्य वर्ज्य' : 'Avoid new launches';
         newStartReason = isTe
           ? `రిక్తా తిథి (${panchang.tithi}) లేదా అమావాస్య కొత్త వ్యాపార/కార్యారంభాలకు తగినది కాదు.`
           : isHi
@@ -1334,23 +1364,27 @@ if (!VALID_TABS.includes(tabId)) tabId = 'clock';
             : `Rikta Tithi (${panchang.tithi}) or Amavasya is unsuitable for new ventures.`;
       } else if (isShukla && (kshipraNak || dhruvaNak || mriduNak)) {
         newStartStatus = 'AUSPICIOUS';
+        newStartTime = `${win.primaryWindow} / ${win.abhijitStr}`;
         newStartReason = isTe
-          ? `శుక్ల పక్ష ${panchang.tithi} మరియు ${panchang.nakshatra} నూతన కార్యాలు, వ్యాపారం, అక్షరాభ్యాసానికి అనుకూలం.`
+          ? `శుక్ల పక్ష ${panchang.tithi} + ${panchang.nakshatra} నూతన కార్యాలు, వ్యాపారం, అక్షరాభ్యాసానికి శుభం.`
           : isHi
-            ? `शुक्ल पक्ष ${panchang.tithi} व ${panchang.nakshatra} नए कार्य व व्यापार के लिए शुभ।`
+            ? `शुक्ल पक्ष ${panchang.tithi} + ${panchang.nakshatra} नए कार्य व व्यापार के लिए शुभ।`
             : `Shukla Paksha ${panchang.tithi} + ${panchang.nakshatra} favors new business & learning.`;
       } else {
         newStartStatus = 'MODERATE';
+        newStartTime = `${win.abhijitStr} (${isTe ? 'గుళిక' : 'Gulika'}: ${win.gulikaStr})`;
         newStartReason = isTe
-          ? 'శుభ సమయంలో లేదా గుళిక కాలంలో ప్రారంభించవచ్చు; రాహుకాలం తప్పక వర్జించాలి.'
+          ? `ఈ సమయంలో లేదా గుళిక కాలంలో ప్రారంభించవచ్చు; రాహుకాలం (${win.rahuStr}) తప్పక వర్జించాలి.`
           : isHi
-            ? 'शुभ समय या गुलिक काल में आरंभ करें; राहुकाल वर्जित रखें।'
-            : 'Suitable during Subha Samayam or Gulika Kalam; avoid Rahu Kalam.';
+            ? `इस समय या गुलिक काल में आरंभ करें; राहुकाल (${win.rahuStr}) वर्जित रखें।`
+            : `Suitable during this window or Gulika Kalam; strictly avoid Rahu Kalam (${win.rahuStr}).`;
       }
 
-      let travelStatus = 'MODERATE', travelReason = '';
+      // 5. Prayanam
+      let travelStatus = 'MODERATE', travelReason = '', travelTime = '';
       if (isAmavasya || tNum === 14 || [1, 2, 8].includes(nIdx)) {
         travelStatus = 'AVOID';
+        travelTime = isTe ? 'దూర ప్రయాణం వాయిదా మేలు' : isHi ? 'लंबी यात्रा टालें' : 'Postpone long travel';
         travelReason = isTe
           ? 'చతుర్దశి/అమావాస్య లేదా భరణి/కృత్తిక/ఆశ్లేష నక్షత్రాలలో దూర ప్రయాణాలు వాయిదా వేయడం మంచిది.'
           : isHi
@@ -1358,26 +1392,28 @@ if (!VALID_TABS.includes(tabId)) tabId = 'clock';
             : 'Chaturdashi/Amavasya or Bharani/Krittika/Ashlesha suggests postponing long journeys.';
       } else if (kshipraNak || charaNak || mriduNak) {
         travelStatus = 'AUSPICIOUS';
+        travelTime = `${win.primaryWindow} / ${win.secondaryWindow}`;
         travelReason = isTe
-          ? `${panchang.nakshatra} ప్రయాణాలు, తీర్థయాత్రలు మరియు వాహన కొనుగోలుకు శుభప్రదం.`
+          ? `${panchang.nakshatra} ప్రయాణాలు, తీర్థయాత్రలు మరియు వాహన కొనుగోలుకు శుభప్రదం (రాహుకాలం ${win.rahuStr} తప్పించి).`
           : isHi
-            ? `${panchang.nakshatra} यात्रा, तीर्थयात्रा व वाहन कार्य हेतु शुभ है।`
-            : `Movable/Swift Nakshatra (${panchang.nakshatra}) favors travel, Yatra & vehicles.`;
+            ? `${panchang.nakshatra} यात्रा, तीर्थयात्रा व वाहन कार्य हेतु शुभ (राहुकाल ${win.rahuStr} छोड़कर)।`
+            : `${panchang.nakshatra} favors travel, Yatra & vehicles (avoid Rahu Kalam ${win.rahuStr}).`;
       } else {
         travelStatus = 'MODERATE';
+        travelTime = `${win.secondaryWindow} / ${win.abhijitStr}`;
         travelReason = isTe
-          ? 'సాధారణ ప్రయాణాలకు అనుకూలం; బయలుదేరే ముందు ఆ వారం దిశ శూల పరిశీలించండి.'
+          ? `సాధారణ ప్రయాణాలకు ఈ సమయం అనుకూలం; బయలుదేరే ముందు దిశ శూల & రాహుకాలం (${win.rahuStr}) చూడండి.`
           : isHi
-            ? 'सामान्य यात्रा के लिए ठीक; प्रस्थान से पूर्व दिशा शूल देखें।'
-            : 'Good for routine travel; check Disha Shoola before departing.';
+            ? `सामान्य यात्रा के लिए यह समय अनुकूल; प्रस्थान से पूर्व दिशा शूल व राहुकाल (${win.rahuStr}) देखें।`
+            : `Good in this window for routine travel; check Disha Shoola & avoid Rahu Kalam (${win.rahuStr}).`;
       }
 
       const items = [
-        { icon: '💍', title: isTe ? 'వివాహం' : isHi ? 'विवाह' : 'Vivaham (Marriage)', status: marriageStatus, reason: marriageReason },
-        { icon: '🤝', title: isTe ? 'నిశ్చితార్థం' : isHi ? 'सगाई / निश्चय' : 'Nischitartham (Engagement)', status: engStatus, reason: engReason },
-        { icon: '🏠', title: isTe ? 'గృహప్రవేశం' : isHi ? 'गृहप्रवेश' : 'Gruhapravesham (Housewarming)', status: gruhaStatus, reason: gruhaReason },
-        { icon: '🚀', title: isTe ? 'నూతన కార్యాలు & వ్యాపారం' : isHi ? 'नए कार्य एवं व्यापार' : 'New Beginnings & Business', status: newStartStatus, reason: newStartReason },
-        { icon: '🚆', title: isTe ? 'ప్రయాణం & యాత్ర' : isHi ? 'यात्रा एवं तीर्थाटन' : 'Prayanam (Travel & Yatra)', status: travelStatus, reason: travelReason }
+        { icon: '💍', title: isTe ? 'వివాహం' : isHi ? 'विवाह' : 'Vivaham (Marriage)', status: marriageStatus, time: marriageTime, reason: marriageReason },
+        { icon: '🤝', title: isTe ? 'నిశ్చితార్థం' : isHi ? 'सगाई / निश्चय' : 'Nischitartham (Engagement)', status: engStatus, time: engTime, reason: engReason },
+        { icon: '🏠', title: isTe ? 'గృహప్రవేశం' : isHi ? 'गृहप्रवेश' : 'Gruhapravesham (Housewarming)', status: gruhaStatus, time: gruhaTime, reason: gruhaReason },
+        { icon: '🚀', title: isTe ? 'నూతన కార్యాలు & వ్యాపారం' : isHi ? 'नए कार्य एवं व्यापार' : 'New Beginnings & Business', status: newStartStatus, time: newStartTime, reason: newStartReason },
+        { icon: '🚆', title: isTe ? 'ప్రయాణం & యాత్ర' : isHi ? 'यात्रा एवं तीर्थाटन' : 'Prayanam (Travel & Yatra)', status: travelStatus, time: travelTime, reason: travelReason }
       ];
 
       const goodCount = items.filter(i => i.status === 'AUSPICIOUS').length;
@@ -1398,10 +1434,10 @@ if (!VALID_TABS.includes(tabId)) tabId = 'clock';
 
       if (noteEl) {
         noteEl.textContent = isTe
-          ? `తెలుగు ముహూర్త శాస్త్ర ప్రకారం (${panchang.teluguMonth}, ${panchang.paksha}, ${panchang.tithi}, ${panchang.nakshatra}) అంచనా. రాహుకాలం, దుర్ముహూర్తం వర్జించి తారాబలం, గురు/శుక్ర బలం చూడండి.`
+          ? `తెలుగు ముహూర్త శాస్త్ర ప్రకారం (${panchang.teluguMonth}, ${panchang.paksha}, ${panchang.tithi}, ${panchang.nakshatra}) • రాహుకాలం: ${win.rahuStr} • అభిజిత్: ${win.abhijitStr}.`
           : isHi
-            ? `मुहूर्त शास्त्र के अनुसार (${panchang.teluguMonth}, ${panchang.paksha}, ${panchang.tithi}, ${panchang.nakshatra}) मूल्यांकन। राहुकाल व दुर्मुहूर्त त्यागकर ताराबल व गुरु/शुक्र बल देखें।`
-            : `Evaluated per Telugu Muhurtha Shastra (${panchang.teluguMonth}, ${panchang.paksha}, ${panchang.tithi}, ${panchang.nakshatra}).`;
+            ? `मुहूर्त शास्त्र के अनुसार (${panchang.teluguMonth}, ${panchang.paksha}, ${panchang.tithi}, ${panchang.nakshatra}) • राहुकाल: ${win.rahuStr} • अभिजीत: ${win.abhijitStr}।`
+            : `Evaluated per Telugu Muhurtha Shastra (${panchang.teluguMonth}, ${panchang.paksha}, ${panchang.tithi}, ${panchang.nakshatra}) • Rahu Kalam: ${win.rahuStr} • Abhijit: ${win.abhijitStr}.`;
       }
 
       gridEl.innerHTML = items.map(it => {
@@ -1421,6 +1457,7 @@ if (!VALID_TABS.includes(tabId)) tabId = 'clock';
               <span class="font-bold text-white">${it.icon} ${it.title}</span>
               <span class="text-[10px] font-mono px-2 py-0.5 rounded-full border ${badgeCls}">${statusLbl}</span>
             </div>
+            <div class="text-[10px] font-mono text-sky-300">🕒 ${it.time}</div>
             <p class="text-[11px] text-slate-300 leading-snug">${it.reason}</p>
           </div>
         `;
@@ -1992,15 +2029,33 @@ if (!VALID_TABS.includes(tabId)) tabId = 'clock';
 
     
     const VIMSHOTTARI_DASHA_ORDER = [
-      { lordEn: 'Ketu', lordTe: 'కేతువు', years: 7 },
-      { lordEn: 'Shukra (Venus)', lordTe: 'శుక్రుడు', years: 20 },
-      { lordEn: 'Ravi (Sun)', lordTe: 'రవి (సూర్యుడు)', years: 6 },
-      { lordEn: 'Chandra (Moon)', lordTe: 'చంద్రుడు', years: 10 },
-      { lordEn: 'Kuja (Mars)', lordTe: 'కుజుడు', years: 7 },
-      { lordEn: 'Rahu', lordTe: 'రాహువు', years: 18 },
-      { lordEn: 'Guru (Jupiter)', lordTe: 'గురువు (బృహస్పతి)', years: 16 },
-      { lordEn: 'Shani (Saturn)', lordTe: 'శని', years: 19 },
-      { lordEn: 'Budha (Mercury)', lordTe: 'బుధుడు', years: 17 }
+      { lordEn: 'Ketu', lordTe: 'కేతువు', years: 7,
+        predEn: 'Spiritual introspection, detachment from non-essentials, inner clarity, research/analytical focus, and sudden course shifts.',
+        predTe: 'ఆధ్యాత్మిక చింతన, అంతర్ముఖ పరిశీలన, పరిశోధన/విశ్లేషణ వైపు ఆసక్తి మరియు అనూహ్య మార్పులు కనిపిస్తాయి.' },
+      { lordEn: 'Shukra (Venus)', lordTe: 'శుక్రుడు', years: 20,
+        predEn: 'Focus on marriage/relationships, family comforts, arts, home/vehicle enhancements, financial ease, and creative fulfillment.',
+        predTe: 'కుటుంబ సౌఖ్యం, వైవాహిక సామరస్యం, కళాభిరుచి, గృహ/వాహన వసతులు మరియు ఆర్థిక వృద్ధి ప్రధానంగా ఉంటాయి.' },
+      { lordEn: 'Ravi (Sun)', lordTe: 'రవి (సూర్యుడు)', years: 6,
+        predEn: 'Emphasis on authority, leadership, public recognition, father/mentor relations, vitality, and taking ownership.',
+        predTe: 'నాయకత్వం, సమాజంలో గౌరవం, వృత్తిలో గుర్తింపు, పితృ/గురు సంబంధిత విషయాలు, ఆత్మవిశ్వాసం పెరుగుతాయి.' },
+      { lordEn: 'Chandra (Moon)', lordTe: 'చంద్రుడు', years: 10,
+        predEn: 'Emotional sensitivity, home/mother bond, travel/relocation, public connection, and fluctuations tied to mind & environment.',
+        predTe: 'మనస్సు, మాతృ అనుబంధం, ప్రయాణాలు/స్థానచలనం, ప్రజాదరణ మరియు భావోద్వేగాల ప్రభావం ఎక్కువగా ఉంటుంది.' },
+      { lordEn: 'Kuja (Mars)', lordTe: 'కుజుడు', years: 7,
+        predEn: 'High drive, courage, technical execution, siblings/property/land matters, and decisiveness—watch temper & haste.',
+        predTe: 'ధైర్యం, సాహసం, సాంకేతిక పనితనం, భూమి/ఆస్తి/సోదర విషయాలు ఉంటాయి; తొందరపాటు, కోపం తగ్గించుకోవాలి.' },
+      { lordEn: 'Rahu', lordTe: 'రాహువు', years: 18,
+        predEn: 'Ambitious leaps, unconventional/foreign/tech opportunities, rapid expansion, and intense worldly desires requiring grounded judgment.',
+        predTe: 'ఉన్నత ఆశయాలు, విభిన్న/విదేశీ/సాంకేతిక అవకాశాలు, వేగవంతమైన మార్పులు ఉంటాయి; విచక్షణతో నిర్ణయాలు తీసుకోవాలి.' },
+      { lordEn: 'Guru (Jupiter)', lordTe: 'గురువు (బృహస్పతి)', years: 16,
+        predEn: 'Wisdom, higher learning, dharma, children (Santana) & family growth, mentorship, and auspicious financial/spiritual expansion.',
+        predTe: 'జ్ఞానం, ఉన్నత విద్య, ధర్మచింతన, సంతాన/కుటుంబ అభివృద్ధి, గురు కృప మరియు ఆర్థిక/ఆధ్యాత్మిక ఉన్నతి లభిస్తాయి.' },
+      { lordEn: 'Shani (Saturn)', lordTe: 'శని', years: 19,
+        predEn: 'Disciplined hard work, long-term career building, accountability, patience, structural maturity, and steady rewards for effort.',
+        predTe: 'కఠిన శ్రమ, క్రమశిక్షణ, వృత్తిలో స్థిరమైన బాధ్యతలు, ఓర్పు మరియు దీర్ఘకాలిక కృషికి తగిన ఫలితం లభిస్తుంది.' },
+      { lordEn: 'Budha (Mercury)', lordTe: 'బుధుడు', years: 17,
+        predEn: 'Analytical intellect, communication, coding/data/commerce/writing, skill acquisition, and business/career networking.',
+        predTe: 'విశ్లేషణాత్మక బుద్ధి, వాక్చాతుర్యం, విద్య/నైపుణ్యాలు, వ్యాపార/వృత్తి నైపుణ్యం మరియు పరిచయాలు వృద్ధి చెందుతాయి.' }
     ];
 
     const BHAVA_MEANINGS = [
@@ -2074,7 +2129,8 @@ if (!VALID_TABS.includes(tabId)) tabId = 'clock';
         dashaTimeline.push({
           lord: isTe ? dItem.lordTe : dItem.lordEn,
           years: spanYrs,
-          period: `${runningYear} – ${endYear}`
+          period: `${runningYear} – ${endYear}`,
+          pred: isTe ? dItem.predTe : dItem.predEn
         });
         runningYear = endYear;
       }
@@ -2204,12 +2260,15 @@ if (!VALID_TABS.includes(tabId)) tabId = 'clock';
       `).join('');
 
       const dashaItemsHtml = chart.dashaTimeline.map((dItem, i) => `
-        <div class="flex items-center justify-between py-1.5 px-2.5 rounded-xl ${i === 0 ? 'bg-amber-500/15 border border-amber-400/35' : 'bg-white/5'}">
-          <div>
-            <span class="font-bold ${i === 0 ? 'text-amber-300' : 'text-white'}">${dItem.lord}</span>
-            <span class="text-[10px] text-slate-400 ml-1.5">(${dItem.years} ${isTe ? 'సం||లు' : 'yrs'})</span>
+        <div class="py-2 px-2.5 rounded-xl ${i === 0 ? 'bg-amber-500/15 border border-amber-400/35' : 'bg-white/5'} space-y-1">
+          <div class="flex items-center justify-between gap-2">
+            <div>
+              <span class="font-bold ${i === 0 ? 'text-amber-300' : 'text-white'}">${dItem.lord}</span>
+              <span class="text-[10px] text-slate-400 ml-1.5">(${dItem.years} ${isTe ? 'సం||లు' : 'yrs'})</span>
+            </div>
+            <span class="text-[11px] font-mono text-sky-300 shrink-0">${dItem.period}</span>
           </div>
-          <span class="text-[11px] font-mono text-sky-300">${dItem.period}</span>
+          <p class="text-[11px] text-slate-200 leading-snug">${dItem.pred || ''}</p>
         </div>
       `).join('');
 
@@ -3637,3 +3696,187 @@ if (!VALID_TABS.includes(tabId)) tabId = 'clock';
 
     // Preload temples in background after initial paint so search/yatra stay responsive
     setTimeout(() => { if (typeof ensureTemplesLoaded === 'function') ensureTemplesLoaded(); }, 1800);
+
+// =========================================================================
+    // OPTION A: WHATSAPP-FRIENDLY PANCHANGAM IMAGE CARD EXPORTER
+    // =========================================================================
+    window.sharePanchangamCardImage = async () => {
+      try {
+        const city = cities[selectedCityIndex] || cities[0];
+        const sun = calcSunTimes(selectedDate, city.lat, city.lon, city.tz);
+        const p = getPanchangam(selectedDate, city.tz);
+        const muh = calcMuhurthams(selectedDate, sun.sr.total, sun.ss.total);
+        const rahuItem = muh.find(m => m.name.includes('Rahu') || m.name.includes('రాహు'));
+        const fests = getFestivalsForDate(datePicker.value);
+        const festTitle = fests.length ? pureScriptText(fests[0].te, fests[0].hi, fests[0].en) : (currentLang === 'te' ? 'సాధారణ దినం' : 'Regular Panchangam Day');
+
+        const canvas = document.createElement('canvas');
+        canvas.width = 900;
+        canvas.height = 1125;
+        const ctx = canvas.getContext('2d');
+
+        const isLight = document.body.classList.contains('theme-light');
+        const grad = ctx.createLinearGradient(0, 0, 900, 1125);
+        if (isLight) {
+          grad.addColorStop(0, '#fffbeb');
+          grad.addColorStop(1, '#f1f5f9');
+        } else {
+          grad.addColorStop(0, '#0b1024');
+          grad.addColorStop(1, '#161b38');
+        }
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, 900, 1125);
+
+        ctx.strokeStyle = '#f59e0b';
+        ctx.lineWidth = 6;
+        ctx.strokeRect(32, 32, 836, 1061);
+
+        ctx.fillStyle = '#f59e0b';
+        ctx.font = 'bold 42px sans-serif';
+        ctx.fillText('ఓం PanchTattva • Drik Panchangam', 70, 110);
+
+        ctx.fillStyle = isLight ? '#334155' : '#cbd5e1';
+        ctx.font = '600 28px sans-serif';
+        ctx.fillText(`${localizePlaceName(city.name)}  |  ${datePicker.value}`, 70, 162);
+
+        const rows = [
+          [currentLang === 'te' ? 'మాసం / అయనం' : 'Telugu Month / Ayana', `${p.teluguMonth} • ${p.ayana}`],
+          [currentLang === 'te' ? 'తిథి' : 'Tithi', `${p.paksha} ${p.tithi} (${currentLang === 'te' ? 'ముగింపు' : 'till'} ${p.tithiEndStr})`],
+          [currentLang === 'te' ? 'నక్షత్రం' : 'Nakshatra', `${p.nakshatra} (${currentLang === 'te' ? 'ముగింపు' : 'till'} ${p.nakEndStr})`],
+          [currentLang === 'te' ? 'రాశి / యోగం' : 'Rashi / Yoga', `${p.rashi} • ${p.yoga}`],
+          [currentLang === 'te' ? 'సూర్యోదయం / సూర్యాస్తమయం' : 'Sunrise / Sunset', `${sun.sr.str12}  /  ${sun.ss.str12}`],
+          [currentLang === 'te' ? 'రాహు కాలం' : 'Rahu Kalam', rahuItem ? rahuItem.time : '--'],
+          [currentLang === 'te' ? 'పండుగ / విశేషం' : 'Festival / Note', festTitle]
+        ];
+
+        let yPos = 240;
+        rows.forEach(([k, v]) => {
+          ctx.fillStyle = isLight ? 'rgba(15,23,42,0.05)' : 'rgba(255,255,255,0.06)';
+          ctx.fillRect(70, yPos - 36, 760, 88);
+          ctx.fillStyle = isLight ? '#b45309' : '#fbbf24';
+          ctx.font = 'bold 22px sans-serif';
+          ctx.fillText(k, 92, yPos - 4);
+          ctx.fillStyle = isLight ? '#0f172a' : '#f8fafc';
+          ctx.font = 'bold 28px sans-serif';
+          ctx.fillText(String(v).slice(0, 48), 92, yPos + 34);
+          yPos += 112;
+        });
+
+        ctx.fillStyle = isLight ? '#475569' : '#94a3b8';
+        ctx.font = '20px sans-serif';
+        ctx.fillText('Generated by PanchTattva • Drik Ganita Siddhanta', 70, 1055);
+
+        canvas.toBlob(async (blob) => {
+          if (!blob) return;
+          const file = new File([blob], `PanchTattva-${datePicker.value}.png`, { type: 'image/png' });
+          if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
+            try {
+              await navigator.share({ files: [file], title: `PanchTattva ${datePicker.value}` });
+              return;
+            } catch (e) {}
+          }
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `PanchTattva-${datePicker.value}.png`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          setTimeout(() => URL.revokeObjectURL(url), 4000);
+        }, 'image/png');
+      } catch (e) {
+        console.warn('Share card error:', e);
+      }
+    };
+
+    // =========================================================================
+    // OPTION C: CLOCK TAB AT-A-GLANCE & EKADASHI/FESTIVAL/RAHU KALAM ALERTS
+    // =========================================================================
+    let remindersEnabled = false;
+    try { remindersEnabled = localStorage.getItem('panchtattva_reminders_on') === '1'; } catch (e) {}
+
+    window.togglePanchTattvaReminders = async () => {
+      if (!remindersEnabled && typeof Notification !== 'undefined' && Notification.permission === 'default') {
+        try { await Notification.requestPermission(); } catch (e) {}
+      }
+      remindersEnabled = !remindersEnabled;
+      try { localStorage.setItem('panchtattva_reminders_on', remindersEnabled ? '1' : '0'); } catch (e) {}
+      updateClockGlanceAndReminders();
+    };
+
+    function findNextEkadashi(refDateObj) {
+      const base = new Date(refDateObj.getFullYear(), refDateObj.getMonth(), refDateObj.getDate(), 12, 0, 0);
+      for (let d = 0; d <= 20; d++) {
+        const probe = new Date(base.getTime() + d * 86400000);
+        const p = getPanchangam(probe, 'Asia/Kolkata');
+        if (p.tithiIdx === 10 || p.tithiIdx === 25) {
+          const iso = `${probe.getFullYear()}-${String(probe.getMonth() + 1).padStart(2, '0')}-${String(probe.getDate()).padStart(2, '0')}`;
+          return { daysAway: d, dateStr: iso, paksha: p.paksha };
+        }
+      }
+      return null;
+    }
+
+    function updateClockGlanceAndReminders() {
+      const isTe = currentLang === 'te';
+      const city = cities[selectedCityIndex] || cities[0];
+      const now = new Date();
+      const sun = calcSunTimes(now, city.lat, city.lon, city.tz);
+      const p = getPanchangam(now, city.tz);
+      const muh = calcMuhurthams(now, sun.sr.total, sun.ss.total);
+      const rahuItem = muh.find(m => m.name.includes('Rahu') || m.name.includes('రాహు'));
+
+      const gHdr = document.getElementById('glanceHdrTitle');
+      if (gHdr) gHdr.textContent = isTe ? '⚡ నేటి ముఖ్య విశేషాలు • పంచాంగం & యాత్ర' : '⚡ TODAY AT A GLANCE • PANCHANGAM & YATRA';
+      const gTithiLbl = document.getElementById('glanceTithiLbl');
+      if (gTithiLbl) gTithiLbl.textContent = isTe ? 'తిథి & నక్షత్రం' : 'Tithi & Nakshatra';
+      const gTithiVal = document.getElementById('glanceTithiVal');
+      if (gTithiVal) gTithiVal.textContent = `${p.tithi} • ${p.nakshatra.split(' (')[0]}`;
+
+      const gRahuLbl = document.getElementById('glanceRahuLbl');
+      if (gRahuLbl) gRahuLbl.textContent = isTe ? 'రాహు కాలం' : 'Rahu Kalam';
+      const gRahuVal = document.getElementById('glanceRahuVal');
+      if (gRahuVal) gRahuVal.textContent = rahuItem ? rahuItem.time : '--';
+
+      const gYatraLbl = document.getElementById('glanceYatraLbl');
+      if (gYatraLbl) gYatraLbl.textContent = isTe ? 'నా యాత్ర' : 'My Yatra';
+      const gYatraVal = document.getElementById('glanceYatraVal');
+      if (gYatraVal) gYatraVal.textContent = isTe ? `${yatraStopIds.length} ఆలయాలు` : `${yatraStopIds.length} Stops`;
+
+      const bellBtn = document.getElementById('reminderBellBtn');
+      if (bellBtn) {
+        bellBtn.textContent = remindersEnabled
+          ? (isTe ? '🔔 రిమైండర్లు: ఆన్' : '🔔 Reminders: On')
+          : (isTe ? '🔔 రిమైండర్లు: ఆఫ్' : '🔔 Reminders: Off');
+      }
+
+      const ek = findNextEkadashi(now);
+      const nextFest = findNextUpcomingFestival(now);
+      const alertBanner = document.getElementById('upcomingAlertsBanner');
+      if (alertBanner) {
+        const ekText = ek
+          ? (ek.daysAway === 0
+            ? (isTe ? 'నేడు ఏకాదశి వ్రతం' : 'Ekadashi Vratam Today')
+            : (isTe ? `తదుపరి ఏకాదశి: ${ek.dateStr} (${ek.daysAway} రోజుల్లో)` : `Next Ekadashi: ${ek.dateStr} (in ${ek.daysAway}d)`))
+          : '';
+        alertBanner.textContent = `🪔 ${nextFest.name} (${nextFest.when})  •  ${ekText}`;
+      }
+
+      if (remindersEnabled && typeof Notification !== 'undefined' && Notification.permission === 'granted') {
+        const todayKey = `pt_notif_${todayStr}`;
+        if (!sessionStorage.getItem(todayKey)) {
+          sessionStorage.setItem(todayKey, '1');
+          try {
+            new Notification('PanchTattva Daily Panchangam', {
+              body: `${p.tithi} • ${p.nakshatra} | Rahu Kalam: ${rahuItem ? rahuItem.time : '--'}`
+            });
+          } catch (e) {}
+        }
+      }
+    }
+
+    const _origTickClocks = tickClocks;
+    tickClocks = function() {
+      _origTickClocks();
+      try { updateClockGlanceAndReminders(); } catch (e) {}
+    };
