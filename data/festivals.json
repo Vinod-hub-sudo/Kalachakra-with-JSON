@@ -508,7 +508,3 @@
     ]
   }
 ]
-```[cite: 58]
-
-### `data/temples.json`
-The full `data/temples.json` file (440 entries, ~1.21 MB) is attached directly in this response (`panchtattva-v39-modular/data/temples_2.json`) and included inside `PanchTattva-v39-Cleaned-JSON.zip` from the previous turn so you can upload it straight to `data/temples.json` in your Git repository[cite: 56, 57].
