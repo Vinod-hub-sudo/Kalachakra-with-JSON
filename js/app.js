@@ -3921,3 +3921,27 @@ const CORRIDOR_TRAINS = {"TPTY": [{"no": "20701", "name": "Secunderabad–Tirupa
         }
       } catch (e) {}
     })();
+
+
+(function ensureBackgroundImageApplied() {
+  function applyBg() {
+    const isLight = document.body.classList.contains('theme-light');
+    const overlay = isLight
+      ? 'linear-gradient(180deg, rgba(255, 251, 235, 0.55) 0%, rgba(248, 250, 252, 0.65) 100%)'
+      : 'linear-gradient(180deg, rgba(8, 12, 28, 0.34) 0%, rgba(10, 14, 30, 0.42) 55%, rgba(6, 9, 20, 0.50) 100%)';
+    const imgUrl = 'url("bg-panchtattva.jpg")';
+    document.documentElement.style.backgroundImage = `${overlay}, ${imgUrl}`;
+    document.documentElement.style.backgroundSize = 'cover, cover';
+    document.documentElement.style.backgroundPosition = 'center center, center center';
+    document.documentElement.style.backgroundRepeat = 'no-repeat, no-repeat';
+    document.documentElement.style.backgroundAttachment = 'fixed, fixed';
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', applyBg);
+  } else {
+    applyBg();
+  }
+  window.addEventListener('load', applyBg);
+  const obs = new MutationObserver(applyBg);
+  if (document.body) obs.observe(document.body, { attributes: true, attributeFilter: ['class'] });
+})();
