@@ -1,4 +1,4 @@
-const CACHE_NAME = 'panchtattva-modular-v38';
+const CACHE_NAME = 'panchtattva-modular-v39';
 const PRECACHE_ASSETS = [
   './',
   './index.html',
