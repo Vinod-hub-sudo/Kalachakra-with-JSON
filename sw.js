@@ -1,4 +1,4 @@
-const CACHE_NAME = 'panchtattva-modular-v36';
+const CACHE_NAME = 'panchtattva-modular-v38';
 const PRECACHE_ASSETS = [
   './',
   './index.html',
@@ -7,7 +7,8 @@ const PRECACHE_ASSETS = [
   './data/temples.json',
   './data/festivals.json',
   './manifest.json',
-  './icon.svg'
+  './icon.svg',
+  './bg-panchtattva.jpg'
 ];
 
 self.addEventListener('install', (event) => {
