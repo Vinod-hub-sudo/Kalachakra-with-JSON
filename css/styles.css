@@ -126,17 +126,3 @@ body.te-font-lg .font-telugu {
   font-size: 1.15em;
   line-height: 1.65;
 }
-
-.temple-gold-dot {
-  fill: #fbbf24;
-  stroke: #fef08a;
-  stroke-width: 1.5;
-  cursor: pointer;
-  filter: drop-shadow(0 0 6px rgba(251, 191, 36, 0.95));
-  transition: transform 0.15s ease, fill 0.15s ease;
-}
-.temple-gold-dot:hover {
-  fill: #ffffff;
-  stroke: #f59e0b;
-  stroke-width: 2.5;
-}
