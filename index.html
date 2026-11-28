@@ -33,6 +33,8 @@
     }
   </script>
   <link rel="stylesheet" href="./css/styles.css" />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 <body class="min-h-screen antialiased" style="background-color:#090d1e;">
 
@@ -725,6 +727,22 @@
         <div id="yatraPlannerBody" class="text-xs text-slate-300">Tap "+ Add to Yatra" on any temple card below to compute multi-stop route distance and Google Maps multi-stop navigation.</div>
       </div>
 
+            <!-- REAL INTERACTIVE INDIA MAP (LEAFLET + GOLDEN DOTS) -->
+      <div id="indiaTempleMapCard" class="glass gold-border rounded-2xl p-3.5 space-y-2.5">
+        <div class="flex items-center justify-between gap-2 flex-wrap">
+          <div>
+            <span class="text-[10px] uppercase tracking-wider text-amber-400 font-bold">🗺️ KSHETRA BHARAT ATLAS • LIVE MAP</span>
+            <h3 class="text-xs font-bold text-white">Interactive India Temple Map (Tap Any Golden Dot)</h3>
+          </div>
+          <button type="button" onclick="resetIndiaMapZoom()" class="px-2.5 py-1 rounded-lg bg-amber-500/20 border border-amber-400/40 text-amber-200 text-[10px] font-bold">Reset India View</button>
+        </div>
+        <div id="indiaLeafletMap" class="w-full h-[380px] sm:h-[450px] rounded-xl overflow-hidden border border-amber-400/30 z-10"></div>
+        <div class="flex items-center justify-between text-[10px] text-slate-300 px-0.5">
+          <span>🟡 Golden Dot = Exact Temple Coordinate (Tap to open transparent detail sub-tab)</span>
+          <span class="text-emerald-300 font-semibold">🟢 Current Origin</span>
+        </div>
+      </div>
+
       <div id="templeListContainer" class="space-y-3.5"></div>
     </section>
 
@@ -818,10 +836,13 @@
 
   </main>
 
-  <!-- Temple Full Detail, Railway Schedule & Bus Modal -->
-  <div id="templeModal" class="fixed inset-0 z-50 hidden bg-black/85 overflow-y-auto p-3">
-    <div class="max-w-lg mx-auto glass gold-border rounded-2xl p-4 my-3 space-y-3.5 relative">
-      <button id="closeModalBtn" type="button" onclick="closeTempleModal()" class="sticky top-2 float-right w-8 h-8 rounded-full bg-white/15 text-white font-bold flex items-center justify-center">✕</button>
+  <!-- Temple Transparent Frosted-Glass Sub-Tab Overlay -->
+  <div id="templeModal" class="fixed inset-0 z-50 hidden bg-slate-950/35 backdrop-blur-md overflow-y-auto p-3 flex items-start justify-center">
+    <div class="w-full max-w-2xl my-4 rounded-3xl bg-slate-900/55 backdrop-blur-xl border border-amber-400/40 shadow-2xl p-4 sm:p-5 text-white">
+      <div class="flex items-center justify-between pb-2 mb-2 border-b border-white/15">
+        <span class="text-[10px] uppercase tracking-wider text-amber-300 font-bold">🛕 TEMPLE SUB-TAB • TRANSPARENT VIEW</span>
+        <button id="closeModalBtn" type="button" onclick="closeTempleModal()" class="px-3 py-1 rounded-full bg-white/15 hover:bg-amber-500 hover:text-slate-950 text-xs font-bold">✕ Back to Map & List</button>
+      </div>
       <div id="templeModalBody" class="space-y-3.5"></div>
     </div>
   </div>
