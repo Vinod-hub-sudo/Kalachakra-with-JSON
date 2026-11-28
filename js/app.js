@@ -2947,6 +2947,7 @@ const CORRIDOR_TRAINS = {"TPTY": [{"no": "20701", "name": "Secunderabad–Tirupa
       }).join('');
       fetchTempsForVisibleTemples(visible);
       renderYatraPlanner();
+      if (typeof renderIndiaTempleMap === 'function') renderIndiaTempleMap(filtered);
     };
 
     window.openTempleModal = (id, focus = 'details') => {
@@ -3945,3 +3946,65 @@ const CORRIDOR_TRAINS = {"TPTY": [{"no": "20701", "name": "Secunderabad–Tirupa
   const obs = new MutationObserver(applyBg);
   if (document.body) obs.observe(document.body, { attributes: true, attributeFilter: ['class'] });
 })();
+
+
+
+let indiaLeafletMapInstance = null;
+let indiaMarkersLayer = null;
+
+window.resetIndiaMapZoom = () => {
+  if (indiaLeafletMapInstance) {
+    indiaLeafletMapInstance.setView([21.5, 79.0], 5);
+  }
+};
+
+window.renderIndiaTempleMap = (templesList) => {
+  const el = document.getElementById('indiaLeafletMap');
+  if (!el || typeof L === 'undefined') return;
+  if (!indiaLeafletMapInstance) {
+    indiaLeafletMapInstance = L.map('indiaLeafletMap', {
+      center: [21.5, 79.0],
+      zoom: 5,
+      zoomControl: true
+    });
+    L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+      attribution: '&copy; OpenStreetMap &copy; CARTO',
+      maxZoom: 18
+    }).addTo(indiaLeafletMapInstance);
+    indiaMarkersLayer = L.layerGroup().addTo(indiaLeafletMapInstance);
+  }
+  setTimeout(() => {
+    if (indiaLeafletMapInstance) indiaLeafletMapInstance.invalidateSize();
+  }, 80);
+
+  indiaMarkersLayer.clearLayers();
+
+  if (userOrigin && typeof userOrigin.lat === 'number' && typeof userOrigin.lon === 'number') {
+    const originIcon = L.divIcon({
+      className: 'leaflet-origin-dot',
+      iconSize: [14, 14],
+      iconAnchor: [7, 7]
+    });
+    L.marker([userOrigin.lat, userOrigin.lon], { icon: originIcon })
+      .bindTooltip(`Origin: ${userOrigin.name}`)
+      .addTo(indiaMarkersLayer);
+  }
+
+  (templesList || []).forEach(t => {
+    if (typeof t.lat !== 'number' || typeof t.lon !== 'number') return;
+    const size = t.tier === 'TIER1' ? 12 : t.tier === 'TIER2' ? 10 : 8;
+    const goldIcon = L.divIcon({
+      className: 'leaflet-gold-dot',
+      iconSize: [size, size],
+      iconAnchor: [size / 2, size / 2]
+    });
+    const marker = L.marker([t.lat, t.lon], { icon: goldIcon })
+      .bindTooltip(`${t.name} (${t.district || t.state})`);
+    marker.on('click', () => {
+      if (typeof window.openTempleModal === 'function') {
+        window.openTempleModal(t.id, 'details');
+      }
+    });
+    marker.addTo(indiaMarkersLayer);
+  });
+};
