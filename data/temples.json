@@ -19072,8 +19072,8 @@
     "district": "Medchal-Malkajgiri",
     "mandal": "Alwal",
     "tier": "TIER3",
-    "lat": 17.5155,
-    "lon": 78.5152,
+    "lat": 17.5143709,
+    "lon": 78.5207533,
     "address": "Ayyappa Temple Compound, Kowkoor Rd, Lakadwala Colony, Bolarum, Secunderabad, Telangana 500010",
     "deity": "Lord Ayyappa",
     "timings": "Mon–Tue & Thu–Fri 05:30 AM – 10:30 AM, 05:30 PM – 08:30 PM; Wed & Sat–Sun 05:30 AM – 11:00 AM, 05:30 PM – 09:00 PM",
@@ -19100,7 +19100,7 @@
     "bestTimeToVisit": "Early morning or evening aarti",
     "isHydLocal": true,
     "rating": 4.6,
-    "googleMapsUrl": "https://maps.app.goo.gl/FdphE81z7GCap3Dg7"
+    "googleMapsUrl": "https://www.google.com/maps/search/?api=1&query=17.5143709,78.5207533"
   },
   {
     "id": "t_bolarum_vasavi_kanyaka_parameshwari",
