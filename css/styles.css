@@ -32,7 +32,7 @@
       }
     }
     .glass {
-      background: linear-gradient(155deg, rgba(20, 27, 58, 0.54) 0%, rgba(10, 14, 31, 0.62) 100%);
+      background: linear-gradient(155deg, rgba(20, 27, 58, 0.34) 0%, rgba(10, 14, 31, 0.40) 100%);
       backdrop-filter: blur(8px);
       -webkit-backdrop-filter: blur(8px);
       border: 1px solid rgba(255, 255, 255, 0.16);
@@ -125,4 +125,31 @@ body.theme-light nav.glass {
 body.te-font-lg .font-telugu {
   font-size: 1.15em;
   line-height: 1.65;
+}
+
+.temple-gold-dot {
+  fill: #fbbf24;
+  stroke: #fef08a;
+  stroke-width: 1.5;
+  cursor: pointer;
+  filter: drop-shadow(0 0 6px rgba(251, 191, 36, 0.95));
+  transition: transform 0.15s ease, fill 0.15s ease;
+}
+.temple-gold-dot:hover {
+  fill: #ffffff;
+  stroke: #f59e0b;
+  stroke-width: 2.5;
+}
+
+.leaflet-gold-dot {
+  background: radial-gradient(circle, #fef08a 0%, #fbbf24 55%, #d97706 100%);
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 0 10px rgba(251, 191, 36, 0.95);
+}
+.leaflet-origin-dot {
+  background: #10b981;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 0 10px rgba(16, 185, 129, 0.95);
 }
