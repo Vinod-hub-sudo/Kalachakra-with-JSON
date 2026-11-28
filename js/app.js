@@ -2947,7 +2947,6 @@ const CORRIDOR_TRAINS = {"TPTY": [{"no": "20701", "name": "Secunderabad–Tirupa
       }).join('');
       fetchTempsForVisibleTemples(visible);
       renderYatraPlanner();
-      if (typeof renderIndiaTempleMap === 'function') renderIndiaTempleMap(filtered);
     };
 
     window.openTempleModal = (id, focus = 'details') => {
@@ -3946,86 +3945,3 @@ const CORRIDOR_TRAINS = {"TPTY": [{"no": "20701", "name": "Secunderabad–Tirupa
   const obs = new MutationObserver(applyBg);
   if (document.body) obs.observe(document.body, { attributes: true, attributeFilter: ['class'] });
 })();
-
-
-let indiaMapState = { scale: 1, tx: 0, ty: 0, dragging: false, startX: 0, startY: 0 };
-
-function projectIndiaCoord(lat, lon) {
-  const x = ((lon - 67.5) / (98.0 - 67.5)) * 760 + 20;
-  const y = ((37.6 - lat) / (37.6 - 6.4)) * 840 + 20;
-  return { x: Number(x.toFixed(1)), y: Number(y.toFixed(1)) };
-}
-
-window.zoomIndiaMap = (factor) => {
-  indiaMapState.scale = Math.min(8, Math.max(1, indiaMapState.scale * factor));
-  const g = document.getElementById('indiaMapLayer');
-  if (g) g.setAttribute('transform', `translate(${indiaMapState.tx},${indiaMapState.ty}) scale(${indiaMapState.scale})`);
-};
-
-window.resetIndiaMapZoom = () => {
-  indiaMapState = { scale: 1, tx: 0, ty: 0, dragging: false, startX: 0, startY: 0 };
-  const g = document.getElementById('indiaMapLayer');
-  if (g) g.setAttribute('transform', 'translate(0,0) scale(1)');
-};
-
-window.renderIndiaTempleMap = (templesList) => {
-  const svg = document.getElementById('indiaHdMapSvg');
-  if (!svg) return;
-  const indiaOutline = "M 248,48 L 288,36 L 325,58 L 348,96 L 322,135 L 352,175 L 398,215 L 478,248 L 542,262 L 605,256 L 638,238 L 692,212 L 748,225 L 758,268 L 722,315 L 695,358 L 668,342 L 648,308 L 615,318 L 598,368 L 568,412 L 518,458 L 462,515 L 408,582 L 368,668 L 332,758 L 304,826 L 282,785 L 252,695 L 222,585 L 198,485 L 182,422 L 132,412 L 108,378 L 138,348 L 168,342 L 152,302 L 186,255 L 215,198 L 232,128 Z";
-  const originPt = projectIndiaCoord(userOrigin.lat, userOrigin.lon);
-  const dotsHtml = (templesList || []).map(t => {
-    const pt = projectIndiaCoord(t.lat, t.lon);
-    const r = t.tier === 'TIER1' ? 4.4 : t.tier === 'TIER2' ? 3.5 : 2.8;
-    const safeName = (t.name || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
-    const safeState = (t.state || '').replace(/'/g, "\\'").replace(/"/g, '&quot;');
-    return `<circle cx="${pt.x}" cy="${pt.y}" r="${r}" class="temple-gold-dot"
-      onclick="openTempleModal('${t.id}', 'details')"
-      onmouseenter="showIndiaMapTip(evt, '${safeName} (${safeState})')"
-      onmouseleave="hideIndiaMapTip()"></circle>`;
-  }).join('');
-
-  svg.innerHTML = `
-    <defs>
-      <radialGradient id="indiaBgGlow" cx="50%" cy="50%" r="60%">
-        <stop offset="0%" stop-color="#1e293b" stop-opacity="0.65"/>
-        <stop offset="100%" stop-color="#020617" stop-opacity="0.95"/>
-      </radialGradient>
-    </defs>
-    <rect width="800" height="880" fill="url(#indiaBgGlow)"/>
-    <g id="indiaMapLayer" transform="translate(${indiaMapState.tx},${indiaMapState.ty}) scale(${indiaMapState.scale})">
-      <path d="${indiaOutline}" fill="rgba(245, 158, 11, 0.10)" stroke="#fbbf24" stroke-width="2.2" stroke-linejoin="round"/>
-      <circle cx="${originPt.x}" cy="${originPt.y}" r="5.5" fill="#10b981" stroke="#ffffff" stroke-width="1.8"/>
-      ${dotsHtml}
-    </g>
-  `;
-
-  if (!svg.dataset.panBound) {
-    svg.dataset.panBound = '1';
-    svg.addEventListener('pointerdown', (e) => {
-      if (e.target && e.target.classList && e.target.classList.contains('temple-gold-dot')) return;
-      indiaMapState.dragging = true;
-      indiaMapState.startX = e.clientX - indiaMapState.tx;
-      indiaMapState.startY = e.clientY - indiaMapState.ty;
-    });
-    window.addEventListener('pointermove', (e) => {
-      if (!indiaMapState.dragging) return;
-      indiaMapState.tx = e.clientX - indiaMapState.startX;
-      indiaMapState.ty = e.clientY - indiaMapState.startY;
-      const g = document.getElementById('indiaMapLayer');
-      if (g) g.setAttribute('transform', `translate(${indiaMapState.tx},${indiaMapState.ty}) scale(${indiaMapState.scale})`);
-    });
-    window.addEventListener('pointerup', () => { indiaMapState.dragging = false; });
-  }
-};
-
-window.showIndiaMapTip = (evt, label) => {
-  const tip = document.getElementById('indiaMapTooltip');
-  const vp = document.getElementById('indiaMapViewport');
-  if (!tip || !vp) return;
-  const rect = vp.getBoundingClientRect();
-  tip.textContent = `🛕 ${label}`;
-  tip.style.left = `${Math.min(rect.width - 180, Math.max(8, evt.clientX - rect.left + 10))}px`;
-  tip.style.top = `${Math.max(8, evt.clientY - rect.top - 28)}px`;
-  tip.classList.remove('hidden');
-};
-window.hideIndiaMapTip = () => document.getElementById('indiaMapTooltip')?.classList.add('hidden');
